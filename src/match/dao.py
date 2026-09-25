@@ -1,19 +1,19 @@
 from sqlalchemy import select, func, or_
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import aliased
-from match.match_entity import Match
-from player.player_entity import Player
-from exceptions.system_error import DatabaseOperationError
+from match.entity import Match
+from player.entity import Player
+from exceptions.match import DatabaseOperationError
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
-class MatchRepository:
+class MatchDAO:
     def __init__(self, session: Session):
-        self._session = session
+        self.session = session
 
-    def create_new_match(self, player1_id: int, player2_id: int) -> Match:
+    def write_new_match(self, match: Match) -> None:
         """
         CRATE TABLE Match
         (
@@ -29,11 +29,9 @@ class MatchRepository:
         VALUES (... ,  ...);
         """
         try:
-            match = Match.create(player1_id, player2_id)
-            self._session.add(match)
-            self._session.commit()
-            self._session.refresh(match)
-            return match
+            self.session.add(match)
+            self.session.commit()
+            self.session.refresh(match)
         except SQLAlchemyError as err:
             raise DatabaseOperationError(str(err))
 
@@ -45,7 +43,7 @@ class MatchRepository:
             LIMIT 1
         """
         try:
-            return self._session.execute(select(Match)
+            return self.session.execute(select(Match)
                                          .where(Match.UUID == uuid)
                                         ).scalar_one_or_none()
         except SQLAlchemyError as err:
@@ -56,16 +54,16 @@ class MatchRepository:
             SELECT * FROM Matrch    
         """
         try:
-            return self._session.execute(select(Match)).scalars().all()
+            return self.session.execute(select(Match)).scalars().all()
         except SQLAlchemyError as err:
             raise DatabaseOperationError(str(err))
 
     def save(self, match: Match) -> None:
         try:
-            self._session.add(match)
-            self._session.commit()
+            self.session.add(match)
+            self.session.commit()
         except SQLAlchemyError as err:
-            self._session.rollback()
+            self.session.rollback()
             raise DatabaseOperationError("сохранение матча", err) from err
 
     def get_finished(self,
@@ -102,10 +100,10 @@ class MatchRepository:
             like = f"%{player_name}%"
             stmt = stmt.where(or_(p1.Name.like(like), p2.Name.like(like)))
         try:
-            total = self._session.scalar(select(func.count()).select_from(stmt.subquery())) or 0
-            rows = self._session.scalars(stmt.order_by(Match.ID.desc())
+            total = self.session.scalar(select(func.count()).select_from(stmt.subquery())) or 0
+            rows = self.session.scalars(stmt.order_by(Match.ID.desc())
                                         .offset((page - 1) * per_page)
                                         .limit(per_page)).all()
-            return rows, total
+            return list(rows), total
         except SQLAlchemyError as err:
             raise DatabaseOperationError("поиск завершённых матчей", err) from err

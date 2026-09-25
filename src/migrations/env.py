@@ -9,8 +9,8 @@ from sqlalchemy import pool
 from alembic import context
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 from db.base import Base
-from player.player_entity import Player
-from match.match_entity import Match
+from player.entity import Player
+from match.entity import Match
 
 load_dotenv()
 DB_NAME = os.getenv("MYSQL_NAME")

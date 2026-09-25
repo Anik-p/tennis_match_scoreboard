@@ -1,6 +1,6 @@
-from exceptions.app_error import ExchangeError
+from exceptions.app_error import AppErorr
 
-class InvalidScoreTransitionError(ExchangeError):
+class InvalidScoreTransitionError(AppErorr):
     def __init__(self, error: str | None=None):
         self.status_code = 400
         message = f"Неожиданная ошибка при расчете счета матча"
@@ -8,13 +8,13 @@ class InvalidScoreTransitionError(ExchangeError):
             message += f": {error}"
         super().__init__(message)
 
-class NameNotFoundError(ExchangeError):
+class NameNotFoundError(AppErorr):
     def __init__(self, base: str):
         self.status_code = 404
         message = f"Не удалось найти ник игрока: '{base}'"
         super().__init__(message)
 
-class NotFoundError(ExchangeError):
+class NotFoundError(AppErorr):
     def __init__(self, error: str | None):
         self.status_code = 404
         message = "Нет данных"
@@ -22,19 +22,19 @@ class NotFoundError(ExchangeError):
             message += f": {error}"
         super().__init__(message)
 
-class NameNotFoundIdError(ExchangeError):
+class NameNotFoundIdError(AppErorr):
     def __init__(self):
         self.status_code = 404
         message = f"Не удается найти идентификатор игрока"
         super().__init__(message)
 
-class MatchNotFoundError(ExchangeError):
+class MatchNotFoundError(AppErorr):
     def __init__(self):
         self.status_code = 404
         message = "База данных не содержит информации о текущем матче"
         super().__init__(message) 
 
-class AddNameError(ExchangeError):
+class AddNameError(AppErorr):
     def __init__(self, pl: str):
         self.status_code = 409
         message = f"Ник ('{pl}') уже существует"

@@ -1,13 +1,13 @@
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import select
-from player.player_entity import Player
-from exceptions.system_error import DatabaseOperationError
+from player.entity import Player
+from exceptions.player import DatabaseOperationError
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
-class PlayerRepository:
+class PlayerDAO:
     def __init__(self, session: Session):
         self._session = session
 

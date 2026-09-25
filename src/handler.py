@@ -1,7 +1,6 @@
 from urllib.parse import urlparse, parse_qs
-from exceptions.app_error import ExchangeError
-from exceptions.domain_error import NotFoundError
-from exceptions.app_error import ExchangeError
+from exceptions.app_error import AppErorr
+from exceptions.base.domain_error import NotFoundError
 from pathlib import Path
 from jinja2 import Environment
 from http.server import BaseHTTPRequestHandler
@@ -85,7 +84,7 @@ class Handler(BaseHTTPRequestHandler):
                 params.update(body_params)    
             response = handler(params)
             self._send_response(response)
-        except ExchangeError as err:
+        except AppErorr as err:
             self._send_error_page(err.status_code, str(err))
         except Exception:
             logging.exception("Необработанная ошибка: %s %s", method, self.path)

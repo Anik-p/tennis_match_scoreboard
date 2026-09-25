@@ -1,12 +1,12 @@
-from exceptions.app_error import ExchangeError
+from exceptions.app_error import AppErorr
 
-class IncorrectData(ExchangeError):
+class IncorrectData(AppErorr):
     def __init__(self):
         self.status_code = 400
         message = "Обязательное поле формы не заполнено"
         super().__init__(message)
 
-class IncorrectInputName(ExchangeError):
+class IncorrectInputName(AppErorr):
     def __init__(self, params: str=None):
         self.status_code = 400
         message = "Данный ввод ника не корректен"
@@ -14,7 +14,7 @@ class IncorrectInputName(ExchangeError):
             message += f": {params}"
         super().__init__(message)
 
-class DataBaseValidatorError(ExchangeError):
+class DataBaseValidatorError(AppErorr):
     def __init__(self, missing_file: str = None):
         self.status_code = 500
         message = "Нет данных для валидатора"

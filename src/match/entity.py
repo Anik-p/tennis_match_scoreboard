@@ -1,24 +1,17 @@
 from db.base import Base
 from sqlalchemy.orm import relationship, Mapped, mapped_column, relationship
 from sqlalchemy import Integer, String, ForeignKey
+from dataclasses import asdict
 from status_points.point_match import LOVE
 from status_points.math_status_enum import MathStatus, GameStatus
-from dataclasses import dataclass, asdict
+from match.dto import Score
 import json
 import uuid
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from players.player_entity import Player
+    from player.entity import Player
 
-@dataclass
-class Score:
-    set_point: dict[str, int]
-    game_point: dict[str, int]
-    score_players: dict[str, str | int]
-    completed_sets: list[str]
-    match_status: str
-    game_status: str
 
 class Match(Base):
     """
@@ -65,7 +58,6 @@ class Match(Base):
         score = Score({player_1: 0, player_2: 0},
                     {player_1: 0, player_2: 0},
                     {player_1: LOVE, player_2: LOVE},
-                    [],
                     MathStatus.ONGOING.value,
                     GameStatus.GAME.value)
         

@@ -1,11 +1,10 @@
-from validator.validator import InputValidator
-from exceptions.app_error import ExchangeError
+from exceptions.app_error import AppErorr
 from response import Response
 from typing import TYPE_CHECKING
-from exceptions.app_error import ExchangeError
 
 if TYPE_CHECKING:
-    from match_service import MatchService
+    from validator.validator import InputValidator
+    from match.service import MatchService
     from jinja2 import Environment
 
 class MatchController:
@@ -35,7 +34,7 @@ class MatchController:
         name_p2 = params.get("player2_name", "").strip()
         try:
             self._validator.validate_name_plyers(name_p1, name_p2)
-        except ExchangeError as err:
+        except AppErorr as err:
             return Response().html(self._render("new-match.html", error=str(err)), status=err.status_code)
 
         view = self._match_service.new_match(name_p1, name_p2)
@@ -52,12 +51,12 @@ class MatchController:
     def get_matches(self, params: dict[str, str]) -> Response:
         page = self._to_page(params.get("page"))
         player_name = params.get("filter_by_player_name", "").strip() or None
-        views, total, pages = self._match_service.get_finished_matches(page, player_name)
+        dto = self._match_service.get_finished_matches(page, player_name)
         return Response().html(self._render("matches.html",
-                                 matches=views,
+                                 matches=dto.views,
                                  page=page,
-                                 pages=pages,
-                                 total=total,
+                                 pages=dto.page,
+                                 total=dto.total,
                                  filter=player_name or ""))
 
     @staticmethod

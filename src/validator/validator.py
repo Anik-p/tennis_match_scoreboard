@@ -1,5 +1,5 @@
 from pathlib import Path
-from exceptions.validator_error import IncorrectInputName, IncorrectData, DataBaseValidatorError
+from exceptions.base.validator_error import IncorrectInputName, IncorrectData, DataBaseValidatorError
 
 class InputValidator:
     def __init__(self):
