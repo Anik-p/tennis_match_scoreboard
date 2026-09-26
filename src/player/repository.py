@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
-class PlayerDAO:
+class PlayerRepository:
     def __init__(self, session: Session):
         self._session = session
 
@@ -31,7 +31,7 @@ class PlayerDAO:
         except SQLAlchemyError as err:
             raise DatabaseOperationError(str(err))
 
-    def get_by_name_player(self, name: str) -> Player | None:
+    def get_by_name(self, name: str) -> Player | None:
         """
             SELECT * FROM Player
             WHERE Name = name
@@ -43,7 +43,7 @@ class PlayerDAO:
         except SQLAlchemyError as err:
             raise DatabaseOperationError(str(err))
 
-    def get_by_id_player(self, player_id: int) -> Player | None:
+    def get_by_id(self, player_id: int) -> Player | None:
         """
             SELECT * FROM Player
             WHERE ID = player_id

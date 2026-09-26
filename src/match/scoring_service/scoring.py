@@ -39,7 +39,7 @@ class ScoringService:
 
     def _tiebreak(self, score: Score, winner_id: str):
         loser_id = str(self._to_opponent(winner_id, score))
-        score.points[winner_id] = score.points[winner_id] + 1
+        score.points[winner_id] += 1
         if Rules.mode_tiebreak(score.points[winner_id], score.points[loser_id]):
             self._finish_game(winner_id, score)
 

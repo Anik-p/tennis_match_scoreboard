@@ -5,7 +5,7 @@ from match.service import MatchService
 from match.dao import MatchDAO
 from match.repository import MatchRepository
 from match.scoring_service.scoring import ScoringService
-from player.dao import PlayerDAO
+from player.repository import PlayerRepository
 from validator.validator import InputValidator
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from db.database import init_db
@@ -22,14 +22,14 @@ def create_app():
                                        autoescape=select_autoescape(["html"]))
     static_dir = _static_dir()
     session = init_db()
-    dao_player = PlayerDAO(session)
+    repo_player = PlayerRepository(session)
     dao_match = MatchDAO(session)
     repo_match = MatchRepository(dao_match)
 
     score_service = ScoringService()
     service_match = MatchService(score_service,
                                  repo_match,
-                                 dao_player)
+                                 repo_player)
     validator = InputValidator()
     controller_match = MatchController(service_match, validator, temlate_env)
     app = Application(controller_match, temlate_env, static_dir)

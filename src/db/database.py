@@ -1,9 +1,8 @@
 from sqlalchemy import create_engine, text
-from db.base import Base
 from sqlalchemy.orm import sessionmaker
 import os
 from dotenv import load_dotenv
-#DROP TABLE IF EXISTS
+
 load_dotenv()
 
 DB_NAME = os.getenv("MYSQL_NAME")

@@ -6,7 +6,7 @@ from match.dto import MatchDTO, FinishedMatchDTO, MatchsViewDTO
 
 if TYPE_CHECKING:
     from match.entity import Match
-    from player.dao import PlayerDAO
+    from player.repository import PlayerRepository
     from match.scoring_service.scoring import ScoringService
     from match.repository import MatchRepository
 
@@ -14,17 +14,17 @@ class MatchService:
     def __init__( self,
                   score_service: ScoringService,
                   match_repo: MatchRepository,
-                  player_dao: PlayerDAO):
+                  player_repo: PlayerRepository):
         self._score_service = score_service
         self._match_repo = match_repo
-        self._player_repo = player_dao
+        self._player_repo = player_repo
 
     def new_match(self,
                  name_p1: str,
                  name_p2: str) -> MatchDTO:
         """Игроки ищутся по имени, при отсутствии — создаются."""
-        player_1 = self._player_repo.get_by_name_player(name_p1)
-        player_2 = self._player_repo.get_by_name_player(name_p2)
+        player_1 = self._player_repo.get_by_name(name_p1)
+        player_2 = self._player_repo.get_by_name(name_p2)
         if player_1 is None:
             player_1 = self._player_repo.create_player(name_p1)
         if player_2 is None:

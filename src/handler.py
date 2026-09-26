@@ -54,30 +54,20 @@ class Handler(BaseHTTPRequestHandler):
         -Получение query_params параметры запроса, если есть, добавляем в params
         -Вызываем handler(params) для получения response
         -Отправляем response в frontend через _send_response()
-
-        POST /match-score?uuid=3fa85f64-5717-4562-b3fc-2c963f66afa6 HTTP/1.1
-        Host: 127.0.0.1:8000
-        Content-Type: application/x-www-form-urlencoded
-        Content-Length: 11
-
-        winner_id=5 
-
-        urlparse(self.path)
-        <scheme>://<netloc>/<path>;<params>?<query>#<fragment>
         """
         try:
-            url_path = urlparse(self.path) #<scheme>://<netloc>/<path>;<params>?<query>#<fragment>
+            url_path = urlparse(self.path)
             path = url_path.path
             if path.startswith(self.STATIC_PREFIXES):
                 return self._serve_static(path)
             
-            query_params = parse_qs(url_path.query) #{uuid=[3fa85f64-5717-4562-b3fc-2c963f66afa6]} query-параметры (?uuid=..., ?page=..., ?filter_by_player_name=...)
-            handler, path_params = self._router.resolve(url_path.path, method=method) #handler, {}
+            query_params = parse_qs(url_path.query) 
+            handler, path_params = self._router.resolve(url_path.path, method=method) 
             params = {}
             if path_params:
                 params.update(path_params)
             if query_params: 
-                query_params = {key: value[0] for key, value in query_params.items()} #{uuid=3fa85f64-5717-4562-b3fc-2c963f66afa6}
+                query_params = {key: value[0] for key, value in query_params.items()} 
                 params.update(query_params)
             if method == "POST":
                 body_params = self.get_params()
