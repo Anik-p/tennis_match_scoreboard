@@ -31,9 +31,6 @@ class Application:
         self.router.register("GET", "/match-score", self.controllers.get_match_score)
         self.router.register("POST", "/match-score", self.controllers.award_point)
         self.router.register("GET", "/matches", self.controllers.get_matches)
-
-    def _static_dir(self):
-        return Path(__file__).parent.parent.parent.resolve() / "frontend" / "static"
     
     def create_request_handler(self, request, client_address, server):
         return Handler(

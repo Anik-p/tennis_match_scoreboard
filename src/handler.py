@@ -13,16 +13,6 @@ if TYPE_CHECKING:
     from router import Router
 
 class Handler(BaseHTTPRequestHandler):
-    """
-    HTTP обработчик для REST API.
-    
-    Поддерживаемые методы:
-    - GET: получение данных сыгранных и действующих матчей
-    - POST: обновления табло матча
-    
-    Формат ответов:
-
-    """
     STATIC_PREFIXES = ("/css/", "/js/", "/images/")
 
     def __init__(self, 
@@ -39,22 +29,6 @@ class Handler(BaseHTTPRequestHandler):
         super().__init__(request, client_address, server)
 
     def _handle(self, method: str):
-        """
-        Компоненты:
-        -handler - экземпляр контроллера, полученный из router.resolve()
-        -path_params - параметры запроса URL
-        -query_params: параметры из строки запроса после '?'
-        -params - объединенный словарь path_params + query_params
-        -response - результат запроса handler(params)
-
-        Обработка запросов:
-        -Получение self.path от BaseHTTPRequestHandler
-        -Разбиение self.path в self.router методом resolve, который возвращает (handler, path_params)
-        -Инициализация params и добавление (если есть) в path_params
-        -Получение query_params параметры запроса, если есть, добавляем в params
-        -Вызываем handler(params) для получения response
-        -Отправляем response в frontend через _send_response()
-        """
         try:
             url_path = urlparse(self.path)
             path = url_path.path
@@ -102,16 +76,6 @@ class Handler(BaseHTTPRequestHandler):
         return self._handle("POST")
 
     def get_params(self) -> dict[str, str]:
-        """
-        Извлекает параметры из тела POST запроса.
-
-        Обработка запросов:
-        -Читает заголовок Content-Length для определения размера данных
-        -Читает тело запроса через self.rfile.read()
-        -Декодирует байты в строку UTF-8
-        -Парсит строку в словарь через parse_qs()
-        -Преобразует значения из списков в строки (берет первый элемент)
-        """
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length)
         params = parse_qs(post_data.decode('utf-8'))

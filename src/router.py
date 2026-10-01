@@ -11,7 +11,7 @@ class Router:
 
     def resolve(self, path: str, method: str) -> tuple[Callable, dict[str, str | Any]]:
         for url, handler in self.__endpoints[method].items():
-            match = url.fullmatch(path) #
+            match = url.fullmatch(path)
             if match:
                 return handler, match.groupdict()  
         raise NotFoundError()

@@ -1,7 +1,10 @@
 from status_points.math_status_enum import GameStatus, MathStatus
 from match.scoring_service.rules import Rules
-from status_points.point_match import LOVE, ORDER_POINT_GAME
-from match.entity import Score
+from status_points.point_match import LOVE, ORDER_POINT_GAME, GAME
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from model import Score
 
 class ScoringService:
     def award_point(self, score: Score, winner_id: str | int) -> Score:
@@ -52,8 +55,9 @@ class ScoringService:
         return score
     
     def _mode_game(self, winner_id: str, score: Score) -> None:
-        next_point = ORDER_POINT_GAME[ORDER_POINT_GAME.index(score.points[winner_id]) + 1]
-        score.points[winner_id] = next_point
+        if score.points[winner_id] != GAME:
+            next_point = ORDER_POINT_GAME[ORDER_POINT_GAME.index(score.points[winner_id]) + 1]
+            score.points[winner_id] = next_point
 
     def _finish_game(self, winner_id: str, score: Score) -> None:
         score.points = {key: LOVE for key in score.points}

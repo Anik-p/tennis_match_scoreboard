@@ -8,10 +8,6 @@ if TYPE_CHECKING:
     from jinja2 import Environment
 
 class MatchController:
-    """
-    Контроллер: принимает параметры запроса, вызывает сервис,
-    рендерит Jinja2-шаблоны и возвращает Response (HTML или 302 Redirect).
-    """
     def __init__( self,
                   match_service:  MatchService,
                   validator: InputValidator,
@@ -53,7 +49,7 @@ class MatchController:
         player_name = params.get("filter_by_player_name", "").strip() or None
         dto = self._match_service.get_finished_matches(page, player_name)
         return Response().html(self._render("matches.html",
-                                 matches=dto.views,
+                                 matches=dto.matchs,
                                  page=page,
                                  pages=dto.page,
                                  total=dto.total,

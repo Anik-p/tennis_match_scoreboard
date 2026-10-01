@@ -23,7 +23,6 @@ class Rules:
 
     @staticmethod
     def mode_tiebreak(winner_score: int, loser_score: int) -> bool:
-        """Тай-брейк: очки числовые, победа при 7+ и разнице >= 2."""
         return winner_score >= 7 and abs(winner_score - loser_score) >= 2
 
     @staticmethod

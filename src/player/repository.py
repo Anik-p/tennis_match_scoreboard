@@ -12,16 +12,6 @@ class PlayerRepository:
         self._session = session
 
     def create_player(self, name: str) -> Player:
-        """
-            CRATE TABLE Player
-            (
-                ID INT PRIMARY KEY AUTO_INCRIMENT,
-                Name VARCHAR(100) NOT NULL
-            );
-
-            INSERT INTO Player(Name)
-            VALUES (...);
-        """
         try:
             player = Player.create(name)
             self._session.add(player)
@@ -32,11 +22,6 @@ class PlayerRepository:
             raise DatabaseOperationError(str(err))
 
     def get_by_name(self, name: str) -> Player | None:
-        """
-            SELECT * FROM Player
-            WHERE Name = name
-            LIMIT 1
-        """
         try:
             result = self._session.execute(select(Player).where(Player.Name == name)).scalar_one_or_none()
             return result
@@ -44,13 +29,8 @@ class PlayerRepository:
             raise DatabaseOperationError(str(err))
 
     def get_by_id(self, player_id: int) -> Player | None:
-        """
-            SELECT * FROM Player
-            WHERE ID = player_id
-            LIMIT 1
-        """
         try:
-            result = self._session.execute(select(Player).where(Player.ID == player_id)).scalar_one_or_none()
+            result = self._session.get(Player, player_id)
             return result
         except SQLAlchemyError as err:
             raise DatabaseOperationError(str(err))

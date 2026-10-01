@@ -4,7 +4,7 @@ from sqlalchemy import Integer, String, ForeignKey
 from dataclasses import asdict
 from status_points.point_match import LOVE
 from status_points.math_status_enum import MathStatus, GameStatus
-from match.dto import Score
+from match.model import Score
 import json
 import uuid
 from typing import TYPE_CHECKING
