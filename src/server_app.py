@@ -1,7 +1,6 @@
 from handler import Handler
 from router import Router
 from http.server import HTTPServer
-from pathlib import Path
 import os
 from dotenv import load_dotenv
 from typing import TYPE_CHECKING
