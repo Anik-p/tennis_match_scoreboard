@@ -53,17 +53,17 @@ class Match(Base):
     winner: Mapped["Player | None"] = relationship("Player", foreign_keys=[Winner])
     
     @classmethod
-    def create(cls, player_1: int, player_2: int) -> Match:
+    def create(cls, player_id_1: int, player_id_2: int) -> Match:
 
-        score = Score({player_1: 0, player_2: 0},
-                    {player_1: 0, player_2: 0},
-                    {player_1: LOVE, player_2: LOVE},
+        score = Score({player_id_1: 0, player_id_2: 0},
+                    {player_id_1: 0, player_id_2: 0},
+                    {player_id_1: LOVE, player_id_2: LOVE},
                     MathStatus.ONGOING.value,
                     GameStatus.GAME.value)
         
         return cls(UUID=str(uuid.uuid4()),
-                     Player1=player_1,
-                     Player2=player_2,
+                     Player1=player_id_1,
+                     Player2=player_id_2,
                      Winner=None,
                      _score=json.dumps(asdict(score)))
 
@@ -72,7 +72,7 @@ class Match(Base):
         return Score(**json.loads(self._score))
 
     @Score.setter
-    def Score(self, value: Score) -> Score:
+    def Score(self, value: Score) -> None:
         self._score = json.dumps(asdict(value))
 
     def __repr__(self) -> str:

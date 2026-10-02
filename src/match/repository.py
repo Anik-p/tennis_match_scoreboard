@@ -1,56 +1,50 @@
-from match.dao import MatchDAO
+from sqlalchemy import select, func, or_
+from sqlalchemy.orm import aliased
 from match.entity import Match
-from match.dto import MatchDTO, MatchsViewDTO, FinishedMatchDTO
-from exceptions.match import MatchNotFoundError
+from player.entity import Player
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from sqlalchemy.orm import Session
 
 class MatchRepository:
-    MATCHES_PER_PAGE = 5
-    def __init__(self, dao_match: MatchDAO):
-        self.dao = dao_match
+    def __init__(self, session: Session):
+        self._session = session
 
-    def save(self, match_: Match) -> None:
-        self.dao.save(match_)
+    def add(self, match_: Match) -> None:
+        self._session.add(match_)
 
-    def create_new_match(self, player1_id: int, player2_id: int) -> Match:
-        match_ = Match().create(player1_id, player2_id)
-        self.dao.write_new_match(match_)
-        return match_
+    def get_match_by_uuid(self, uuid: str) -> Match | None:
+        return self._session.execute(select(Match)
+                                         .where(Match.UUID == uuid)
+                                        ).scalar_one_or_none()
 
-    def get_match(self, uuid: str) -> Match:
-        if not uuid:
-            raise MatchNotFoundError() 
-        match_ = self.dao.get_match_by_uuid(uuid)
-        if match_ is None:
-            raise MatchNotFoundError()
-        return match_
+    def get_all(self) -> list[Match]:
+        return self._session.execute(select(Match)).scalars().all()
 
-    def get_finished_matches(self, page: int, player_name: str | None) -> MatchsViewDTO:
-        matchs, total = self.dao.get_finished(player_name, page, self.MATCHES_PER_PAGE)
-        pages = max(1, -(-total // self.MATCHES_PER_PAGE))
-        return self._to_view(matchs, total, pages)
 
-    def _to_view(self, matchs: list[Match], total: int, page: int):
-        return MatchsViewDTO(matchs=[FinishedMatchDTO(player1=row.player1.Name,
-                                                      player2=row.player2.Name,
-                                                      winner=row.winner.Name)
-                                    for row in matchs],
-                             total=total,
-                             page=page)
-    
-    def to_dto(self, match_: Match) -> MatchDTO:
-        score = match_.Score
-        ids = [str(match_.Player1), str(match_.Player2)]
-        winner_name = match_.winner.Name if match_.winner else None
-        return MatchDTO(
-            uuid=match_.UUID,
-            player1=match_.player1.Name,
-            player2=match_.player2.Name,
-            player1_id=match_.Player1,
-            player2_id=match_.Player2,
-            winner=winner_name,
-            sets=[score.sets[i] for i in ids],
-            games=[score.games[i] for i in ids],
-            points=[score.points[i] for i in ids],
-            match_status=score.match_status,
-            game_status=score.game_status
-        )
+    def get_finished(self,
+                     player_name: str | None, page: int,
+                     per_page: int) -> tuple[list[Match], int]:
+        
+        p1 = aliased(Player)
+        p2 = aliased(Player)
+        stmt = (select(Match).join(p1, Match.Player1 == p1.ID)
+                             .join(p2, Match.Player2 == p2.ID)
+                             .where(Match.Winner.isnot(None)))
+        if player_name:
+            like = f"%{player_name}%"
+            stmt = stmt.where(or_(p1.Name.like(like), p2.Name.like(like)))
+
+        total = self._session.scalar(select(func.count()).select_from(stmt.subquery())) or 0
+        rows = self._session.scalars(stmt.order_by(Match.ID.desc())
+                                        .offset((page - 1) * per_page)
+                                        .limit(per_page)).all()
+        return list(rows), total
+
+
+    def rollback(self) -> None:
+        self._session.rollback()
+
+    def flush(self) -> None:
+        self._session.flush()

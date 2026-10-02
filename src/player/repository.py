@@ -1,7 +1,5 @@
-from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import select
 from player.entity import Player
-from exceptions.player import DatabaseOperationError
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -11,26 +9,11 @@ class PlayerRepository:
     def __init__(self, session: Session):
         self._session = session
 
-    def create_player(self, name: str) -> Player:
-        try:
-            player = Player.create(name)
-            self._session.add(player)
-            self._session.commit()
-            self._session.refresh(player)
-            return player
-        except SQLAlchemyError as err:
-            raise DatabaseOperationError(str(err))
+    def create_player(self, player: Player) -> None:
+        self._session.add(player)
 
     def get_by_name(self, name: str) -> Player | None:
-        try:
-            result = self._session.execute(select(Player).where(Player.Name == name)).scalar_one_or_none()
-            return result
-        except SQLAlchemyError as err:
-            raise DatabaseOperationError(str(err))
+        return self._session.execute(select(Player).where(Player.Name == name)).scalar_one_or_none()
 
     def get_by_id(self, player_id: int) -> Player | None:
-        try:
-            result = self._session.get(Player, player_id)
-            return result
-        except SQLAlchemyError as err:
-            raise DatabaseOperationError(str(err))
+        return self._session.get(Player, player_id)

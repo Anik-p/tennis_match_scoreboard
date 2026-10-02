@@ -2,7 +2,6 @@ from server_app import Application
 import logging
 from match.controller import MatchController
 from match.service import MatchService
-from match.dao import MatchDAO
 from match.repository import MatchRepository
 from match.scoring_service.scoring import ScoringService
 from player.repository import PlayerRepository
@@ -23,8 +22,7 @@ def create_app():
     static_dir = _static_dir()
     session = init_db()
     repo_player = PlayerRepository(session)
-    dao_match = MatchDAO(session)
-    repo_match = MatchRepository(dao_match)
+    repo_match = MatchRepository(session)
 
     score_service = ScoringService()
     service_match = MatchService(score_service,
