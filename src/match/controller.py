@@ -1,20 +1,21 @@
 from exceptions.app_error import AppErorr
+from match.session_fabric import SessionFabric
 from response import Response
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from validator.validator import InputValidator
-    from match.service import MatchService
     from jinja2 import Environment
 
 class MatchController:
     def __init__( self,
-                  match_service:  MatchService,
                   validator: InputValidator,
-                  template_env: Environment):
-        self._match_service = match_service
+                  template_env: Environment,
+                  session_fabric: SessionFabric):
+
         self._validator = validator
         self._template_env = template_env
+        self._session_fabric = session_fabric
 
     def _render(self, template: str, **kwargs) -> str:
         return self._template_env.get_template(template).render(**kwargs)
@@ -32,23 +33,26 @@ class MatchController:
             self._validator.validate_name_plyers(name_p1, name_p2)
         except AppErorr as err:
             return Response().html(self._render("new-match.html", error=str(err)), status=err.status_code)
-
-        view = self._match_service.new_match(name_p1, name_p2)
-        return Response().redirect(f"/match-score?uuid={view.uuid}")
+        with self._session_fabric._create_match_service() as match_service:
+            view = match_service.new_match(name_p1, name_p2)
+            return Response().redirect(f"/match-score?uuid={view.uuid}")
 
     def get_match_score(self, params: dict[str, str]) -> Response:
-        view = self._match_service.get_match(params.get("uuid"))
-        return Response().html(self._render("match-score.html", match=view))
+        with self._session_fabric._create_match_service() as match_service:
+            view = match_service.get_match(params.get("uuid"))
+            return Response().html(self._render("match-score.html", match=view))
 
     def award_point(self, params: dict[str, str]) -> Response:
-        view = self._match_service.award_point(params.get("uuid"), params.get("winner_id"))
-        return Response().redirect(f"/match-score?uuid={view.uuid}")
+        with self._session_fabric._create_match_service() as match_service:
+            view = match_service.award_point(params.get("uuid"), params.get("winner_id"))
+            return Response().redirect(f"/match-score?uuid={view.uuid}")
 
     def get_matches(self, params: dict[str, str]) -> Response:
         page = self._to_page(params.get("page"))
         player_name = params.get("filter_by_player_name", "").strip() or None
-        dto = self._match_service.get_finished_matches(page, player_name)
-        return Response().html(self._render("matches.html",
+        with self._session_fabric._create_match_service() as match_service:
+            dto = match_service.get_finished_matches(page, player_name)
+            return Response().html(self._render("matches.html",
                                  matches=dto.matchs,
                                  page=page,
                                  pages=dto.page,

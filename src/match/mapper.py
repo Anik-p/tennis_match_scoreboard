@@ -9,6 +9,7 @@ class MapperMatch:
         return MatchsViewDTO(matchs=[FinishedMatchDTO(player1=row.player1.Name,
                                                       player2=row.player2.Name,
                                                       winner=row.winner.Name)
+                                    if row.Winner else "No data"
                                     for row in matchs],
                              total=total,
                              page=page)
@@ -25,9 +26,9 @@ class MapperMatch:
             player1_id=match_.Player1,
             player2_id=match_.Player2,
             winner=winner_name,
-            sets=[score.sets[i] for i in ids],
-            games=[score.games[i] for i in ids],
-            points=[score.points[i] for i in ids],
+            sets=[score.sets.get(i, 0) for i in ids],
+            games=[score.games.get(i, 0) for i in ids],
+            points=[score.points.get(i, 0) for i in ids],
             match_status=score.match_status,
             game_status=score.game_status
         )

@@ -1,10 +1,7 @@
 from server_app import Application
 import logging
 from match.controller import MatchController
-from match.service import MatchService
-from match.repository import MatchRepository
-from match.scoring_service.scoring import ScoringService
-from player.repository import PlayerRepository
+from match.session_fabric import SessionFabric
 from validator.validator import InputValidator
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from db.database import init_db
@@ -20,16 +17,10 @@ def create_app():
     temlate_env: Environment = Environment(loader=FileSystemLoader(_templates_dir()),
                                        autoescape=select_autoescape(["html"]))
     static_dir = _static_dir()
-    session = init_db()
-    repo_player = PlayerRepository(session)
-    repo_match = MatchRepository(session)
-
-    score_service = ScoringService()
-    service_match = MatchService(score_service,
-                                 repo_match,
-                                 repo_player)
+    init_db()
+    session_fabric = SessionFabric()
     validator = InputValidator()
-    controller_match = MatchController(service_match, validator, temlate_env)
+    controller_match = MatchController(validator, temlate_env, session_fabric)
     app = Application(controller_match, temlate_env, static_dir)
     return app
 
