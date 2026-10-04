@@ -8,8 +8,7 @@ class MapperMatch:
     def to_view(matchs: list[Match], total: int, page: int):
         return MatchsViewDTO(matchs=[FinishedMatchDTO(player1=row.player1.Name,
                                                       player2=row.player2.Name,
-                                                      winner=row.winner.Name)
-                                    if row.Winner else "No data"
+                                                      winner=row.winner.Name if row.Winner else "No data")                             
                                     for row in matchs],
                              total=total,
                              page=page)
