@@ -27,3 +27,5 @@ services:
       db:
         condition: service_healthy
     command: sh -c "alembic upgrade head && python -c 'from src.main import app_start; app_start()'"
+volumes:
+  mysql_data:
