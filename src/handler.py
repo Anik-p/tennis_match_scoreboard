@@ -9,6 +9,7 @@ import logging
 import mimetypes
 
 if TYPE_CHECKING:
+    from session_fabric import SessionFabric
     from response import Response
     from router import Router
 
@@ -21,11 +22,13 @@ class Handler(BaseHTTPRequestHandler):
                  server,
                  router: Router,
                  static_dir: Path,
-                 template_env: Environment):
+                 template_env: Environment,
+                 session_fabric: SessionFabric):
 
         self._static_dir = static_dir
         self._template_env = template_env
         self._router = router
+        self._session_fabric = session_fabric
         super().__init__(request, client_address, server)
 
     def _handle(self, method: str):
@@ -33,7 +36,7 @@ class Handler(BaseHTTPRequestHandler):
             url_path = urlparse(self.path)
             path = url_path.path
             if path.startswith(self.STATIC_PREFIXES):
-                return self._serve_static(path)
+                return self._server_static(path)
             
             query_params = parse_qs(url_path.query) 
             handler, path_params = self._router.resolve(url_path.path, method=method) 
@@ -45,16 +48,17 @@ class Handler(BaseHTTPRequestHandler):
                 params.update(query_params)
             if method == "POST":
                 body_params = self.get_params()
-                params.update(body_params)    
-            response = handler(params)
-            self._send_response(response)
+                params.update(body_params)
+            with self._session_fabric._create_match_service() as match_service:
+                response = handler(params, match_service)
+                self._send_response(response)
         except AppErorr as err:
             self._send_error_page(err.status_code, str(err))
         except Exception:
             logging.exception("Необработанная ошибка: %s %s", method, self.path)
             self._send_error_page(500, "Внутренняя ошибка сервера")       
         
-    def _serve_static(self, path: str) -> None:
+    def _server_static(self, path: str) -> None:
         path_temp = Path(path.lstrip("/"))
         if ".." in path_temp.parts:
             raise NotFoundError()

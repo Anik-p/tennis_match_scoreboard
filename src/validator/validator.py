@@ -32,10 +32,14 @@ class InputValidator:
     def _validate_name(self, name: str) -> None:
         if not name:
             raise IncorrectData()
+        if len(name) < 3:
+            raise IncorrectInputName("Никнейм должен иметь длину не менее 3 символов")
+        if len(name) > 20:
+            raise IncorrectInputName("Никнейм должен иметь длину не более 20 символов" )
         if not all(row.isalpha() for row in name.split()):
             raise IncorrectInputName("Никнейм должнен состоять из букв")
         if self._validate_profanity_words(name):
-            raise IncorrectInputName(f"Введенное слово в 'name': ({name}) является нецензурным")
+            raise IncorrectInputName(f"Введенное слово в '{name}' является нецензурным")
 
     def _validate_profanity_words(self, text: str) -> bool:
         return any(row in text.lower() for row in self.word)

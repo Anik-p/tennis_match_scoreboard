@@ -1,3 +1,5 @@
+*nginx.conf
+*.gitignore
 # IDE
 .idea/
 .vscode/
