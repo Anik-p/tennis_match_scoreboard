@@ -10,10 +10,16 @@ class PlayerRepository:
         self._session = session
 
     def create_player(self, player: Player) -> None:
+        """
+        INSERT INTO Player
+        VALUES (ID, Name)
+        """
         self._session.add(player)
 
     def get_by_name(self, name: str) -> Player | None:
+        """
+        SELECT * FROM Player
+        WHERE Name = name
+        LIMIT 1
+        """
         return self._session.execute(select(Player).where(Player.Name == name)).scalar_one_or_none()
-
-    def get_by_id(self, player_id: int) -> Player | None:
-        return self._session.get(Player, player_id)

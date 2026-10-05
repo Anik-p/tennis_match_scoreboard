@@ -15,6 +15,19 @@ class MatchController:
         self._template_env = template_env
 
     def _render(self, template: str, **kwargs) -> str:
+        """
+        Метод для рендера страниц HTML
+
+        Компоненты:
+            - template - принимает имя файла шаблона, который нужно отрисовать (например, "match-score.html" или "matches.html").
+            - **kwargs - именованные аргументы для Jinja2
+            - self._template_env.get_template(template) - обращается к объекту Environment библиотеки Jinja2
+                Jinja2 идет в папку, считывает его и компилирует в специальный внутренний объект шаблона Python
+            - .render - метод запускает движок шаблонизатора: он сканирует HTML-файл,
+                 находит конструкции вида {{ player1.Name }} или {% for match in matches %},
+                 вырезает и подставляет вместо него текстовые значения или генерирует циклы
+        - На выходе получается чистый HTML-текст
+        """
         return self._template_env.get_template(template).render(**kwargs)
 
     def index(self, params: dict[str, str], match_service: MatchService) -> Response:

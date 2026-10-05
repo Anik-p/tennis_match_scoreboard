@@ -1,6 +1,6 @@
-from exceptions.app_error import AppError
+from exceptions.app_error import InfrastuctureError
 
-class DatabaseOperationError(AppError):
+class DatabaseOperationError(InfrastuctureError):
     def __init__(self, operation: str):
         self.status_code = 500
         message = f"Ошибка операции БД: {operation}"

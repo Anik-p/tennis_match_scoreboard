@@ -1,8 +1,6 @@
 from typing import TYPE_CHECKING
-from functools import wraps
-from sqlalchemy.exc import SQLAlchemyError
 from status_points.math_status_enum import MatchStatus
-from exceptions.match import MatchNotFoundError, DatabaseOperationError
+from exceptions.match import MatchNotFoundError
 from player.entity import Player
 from match.mapper import MapperMatch
 from match.entity import Match
@@ -25,22 +23,6 @@ class MatchService:
         self._match_repo = match_repo
         self._player_repo = player_repo
 
-    def _transactions(func):
-        @wraps(func)
-        def wrapper(self, *args, **kwargs):
-            session = self._match_repo._session
-            try:
-                result = func(self, *args, **kwargs)
-                return result
-            except SQLAlchemyError as err:
-                session.rollback()
-                raise DatabaseOperationError(str(err))
-            except Exception:
-                session.rollback()
-                raise
-        return wrapper
-
-    @_transactions
     def new_match(self,
                  name_p1: str,
                  name_p2: str) -> MatchDTO:
@@ -59,7 +41,6 @@ class MatchService:
         self._match_repo.add(match_)
         return MapperMatch().to_dto(match_)
     
-    @_transactions
     def get_match(self, uuid: str) -> MatchDTO:
         if not uuid:
             raise MatchNotFoundError() 
@@ -68,13 +49,11 @@ class MatchService:
             raise MatchNotFoundError()
         return MapperMatch().to_dto(match_)
 
-    @_transactions
     def get_finished_matches(self, page: int, player_name: str | None) -> MatchesViewDTO:
         matchs, total = self._match_repo.get_finished(player_name, page, self.MATCHES_PER_PAGE)
         pages = max(1, -(-total // self.MATCHES_PER_PAGE))
         return MapperMatch().to_view(matchs, total, pages)
     
-    @_transactions
     def award_point(self, uuid: str, winner_id: str) -> MatchDTO:
         match_ = self._match_repo.get_match_by_uuid(uuid)
         if not match_:
@@ -85,7 +64,3 @@ class MatchService:
             match_.Winner = winner_id
         self._match_repo.add(match_)
         return MapperMatch().to_dto(match_)
-
-    @_transactions
-    def commit(self) -> None:
-        self._match_repo._session.commit()

@@ -23,20 +23,19 @@ class Match(Base):
 
         Структура матча:
 
-        Match(UUID=str(uuid.uuid4),
-                     Player1=player_1,
-                     Player2=player_2,
-                     Winner=None,
-                     _score=score)
+            Match(UUID=str(uuid.uuid4),
+                        Player1=player_1,
+                        Player2=player_2,
+                        Winner=None,
+                        _score=score)
 
         Структура атрибута _score (десериализационная):
 
-        Score(  set_point = {"Player1_id": 0, "Player2_id": 0},
-                game_point = {"Player1_id": 0, "Player2_id": 0}
-                score_players = {"Player1_id": "0", "Player2_id": "0"},
-                completed_sets = [("3-6")],
-                match_status = "ongoing",
-                game_status = "game")
+            Score(  sets = {"Player1_id": 0, "Player2_id": 0},
+                    games = {"Player1_id": 0, "Player2_id": 0}
+                    poits = {"Player1_id": "0", "Player2_id": "0"},
+                    match_status = "ongoing",
+                    game_status = "game")
     """
     
     __tablename__ = "Matches"

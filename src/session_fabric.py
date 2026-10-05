@@ -2,6 +2,8 @@ from match.repository import MatchRepository
 from player.repository import PlayerRepository
 from match.scoring_service.scoring import ScoringService
 from contextlib import contextmanager
+from sqlalchemy.exc import SQLAlchemyError
+from exceptions.match import DatabaseOperationError
 from typing import Generator
 from match.service import MatchService
 from db.database import SessionLocal
@@ -20,5 +22,12 @@ class SessionFabric:
                                          match_repo=match_repo,
                                          player_repo=player_repo)
             yield match_service
+            session.commit()
+        except SQLAlchemyError as err:
+            session.rollback()
+            raise DatabaseOperationError(str(err))
+        except Exception:
+            session.rollback()
+            raise
         finally:
             session.close()

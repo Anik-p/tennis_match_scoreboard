@@ -14,6 +14,13 @@ if TYPE_CHECKING:
     from router import Router
 
 class Handler(BaseHTTPRequestHandler):
+    """
+    HTTP обработчик для REST API.
+    
+    Поддерживаемые методы:
+    - GET: получение данных сыгранных и действующих матчей
+    - POST: обновления табло матча
+    """
     STATIC_PREFIXES = ("/css/", "/js/", "/images/")
 
     def __init__(self, 
@@ -32,17 +39,84 @@ class Handler(BaseHTTPRequestHandler):
         super().__init__(request, client_address, server)
 
     def _handle(self, method: str):
+        """
+        Компоненты:
+            - handler - экземпляр контроллера, полученный из router.resolve()
+            - path_params - параметры запроса URL
+            - query_params: параметры из строки запроса после '?'
+            - params - объединенный словарь path_params + query_params
+            - response - результат запроса handler(params)
+
+        Обработка запросов:
+            - Получение self.path от BaseHTTPRequestHandler
+            - Разбиение self.path в self.router методом resolve, который возвращает (handler, path_params)
+            - Инициализация params и добавление (если есть) в path_params
+            - Получение query_params параметры запроса, если есть, добавляем в params
+            - Вызываем handler(params) для получения response
+            - Отправляем response в frontend через _send_response()
+
+        Пример запроса:  
+        ------------------------------------------------------------------------   
+             POST /match-score?uuid=3fa85f64-5717-4562-b3fc-2c963f66afa6 HTTP/1.1
+
+             Host: 127.0.0.1:8000
+
+             Content-Type: application/x-www-form-urlencoded
+
+             Content-Length: 11
+
+             winner_id=5 
+        ------------------------------------------------------------------------
+        Пример успешной обработки:
+
+        1. Разбор URI:
+
+            urlparse(self.path)
+
+            url_path = (scheme)://(netloc)/(path);(params)?(query)#(fragment)
+
+            path = /match-score
+
+            query_params = {"uuid": [3fa85f64-5717-4562-b3fc-2c963f66afa6]}
+
+        2. Роутинг:
+
+            handler, path_params = self._router.resolve(url_path.path, method=method)
+
+            handler = self.controllers.award_point
+
+
+        3. Сбор и распаковка параметров:     
+
+            params = {}
+
+            if query_params:
+                query_params = {key: value[0] for key, value in query_params.items()}
+                params.update({"uuid": 3fa85f64-5717-4562-b3fc-2c963f66afa6})
+            
+            if method == "POST":
+                body_params = {"winner_id": 5}
+                params.update({"winner_id": 5})
+
+        4. Выполнение бизнес-логики:
+
+            with self._session_fabric._create_match_service() as match_service: - открытие сессии для запросов в БД с
+                                                                                  инициализацией репозиториев и сервиса матча
+
+                response = handler(params, match_service) - (response = self.controllers.award_point({"uuid": 3fa85f64-5717-4562-b3fc-2c963f66afa6, "winner_id": 5}, MatchService))
+
+        5. Рендеринг ответа:
+
+                self._send_response(response) - переадресация страницы Response от контроллера            
+        """
         try:
             url_path = urlparse(self.path)
             path = url_path.path
             if path.startswith(self.STATIC_PREFIXES):
                 return self._serve_static(path)
-            
             query_params = parse_qs(url_path.query) 
-            handler, path_params = self._router.resolve(url_path.path, method=method) 
+            handler = self._router.resolve(url_path.path, method=method) 
             params = {}
-            if path_params:
-                params.update(path_params)
             if query_params: 
                 query_params = {key: value[0] for key, value in query_params.items()} 
                 params.update(query_params)
@@ -51,7 +125,6 @@ class Handler(BaseHTTPRequestHandler):
                 params.update(body_params)
             with self._session_fabric._create_match_service() as match_service:
                 response = handler(params, match_service)
-                match_service.commit()
                 self._send_response(response)
         except AppError as err:
             self._send_error_page(err.status_code, str(err))
@@ -60,6 +133,12 @@ class Handler(BaseHTTPRequestHandler):
             self._send_error_page(500, "Внутренняя ошибка сервера")       
         
     def _serve_static(self, path: str) -> None:
+        """
+        Рендер статических страниц
+
+        Пример выполнения: 
+
+        """
         path_temp = Path(path.lstrip("/"))
         if ".." in path_temp.parts:
             raise NotFoundError()
@@ -81,6 +160,16 @@ class Handler(BaseHTTPRequestHandler):
         return self._handle("POST")
 
     def get_params(self) -> dict[str, str]:
+        """
+        Извлекает параметры из тела POST запроса.
+
+        Обработка запросов:
+            - Читает заголовок Content-Length для определения размера данных
+            - Читает тело запроса через self.rfile.read()
+            - Декодирует байты в строку UTF-8
+            - Парсит строку в словарь через parse_qs()
+            - Преобразует значения из списков в строки (берет первый элемент)
+        """
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length)
         params = parse_qs(post_data.decode('utf-8'))

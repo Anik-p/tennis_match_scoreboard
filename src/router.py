@@ -9,9 +9,9 @@ class Router:
     def register(self, method: str, path: str, handler: str) -> None:
         self.__endpoints[method][re.compile(path)] = handler
 
-    def resolve(self, path: str, method: str) -> tuple[Callable, dict[str, str | Any]]:
+    def resolve(self, path: str, method: str) -> Callable:
         for url, handler in self.__endpoints[method].items():
             match = url.fullmatch(path)
             if match:
-                return handler, match.groupdict()  
+                return handler
         raise NotFoundError()
