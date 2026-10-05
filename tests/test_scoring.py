@@ -1,6 +1,6 @@
 from tests.conftest import PL_1, PL_2
-from status_points.point_match import *
-from status_points.math_status_enum import *
+from status_points.point_match import LOVE, FIFTEEN, THIRTY, FORTY, GAME, AD_IN, AD_OUT
+from status_points.math_status_enum import GameStatus, MatchStatus
 from match.scoring_service.scoring import ScoringService
 import pytest
 
@@ -49,9 +49,9 @@ def test_deuce_mod(winner_id: int,
                             ((0,0),PL_1, (1,0), GameStatus.TIEBREAK.value),
                             ((0,0),PL_2, (0,1), GameStatus.TIEBREAK.value),
                             ((6,6),PL_2, (6,7), GameStatus.TIEBREAK.value),
-                            ((4,5),PL_1, (5,5), GameStatus.TIEBREAK.value),
-                            ((4,5),PL_1, (5,5), GameStatus.TIEBREAK.value),
-                            ((4,5),PL_1, (5,5), GameStatus.TIEBREAK.value),
+                            ((4,3),PL_1, (5,3), GameStatus.TIEBREAK.value),
+                            ((4,6),PL_1, (5,6), GameStatus.TIEBREAK.value),
+                            ((1,5),PL_1, (2,5), GameStatus.TIEBREAK.value),
                             ((6,6),PL_1, (7,6), GameStatus.TIEBREAK.value),
                             ((6,5),PL_1, (LOVE,LOVE), GameStatus.GAME.value),
                             ((8,8),PL_1, (9,8), GameStatus.TIEBREAK.value),
@@ -69,9 +69,9 @@ def test_tiebreak_mod(start_score: tuple[int],
     assert (point_p1 == ex_point_pl1 and point_p2 == ex_point_pl2) and score_result.game_status == mode
     
 @pytest.mark.parametrize("sets,winner_id,expected,mode_match", [
-                            ((0,0),PL_1, (1,0), MathStatus.ONGOING.value),
-                            ((0,1),PL_1, (1,1), MathStatus.ONGOING.value),
-                            ((1,1),PL_1, (2,1), MathStatus.FINISHED.value)])
+                            ((0,0),PL_1, (1,0), MatchStatus.ONGOING.value),
+                            ((0,1),PL_1, (1,1), MatchStatus.ONGOING.value),
+                            ((1,1),PL_1, (2,1), MatchStatus.FINISHED.value)])
 def test_match_point(sets: tuple[int],
                      winner_id: int,
                      expected: tuple[int],

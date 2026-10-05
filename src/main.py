@@ -13,13 +13,13 @@ def _static_dir():
     return Path(__file__).parent.parent.resolve() / "frontend" / "static"
 
 def create_app():
-    temlate_env: Environment = Environment(loader=FileSystemLoader(_templates_dir()),
+    template_env: Environment = Environment(loader=FileSystemLoader(_templates_dir()),
                                        autoescape=select_autoescape(["html"]))
     static_dir = _static_dir()
     init_db()
     validator = InputValidator()
-    controller_match = MatchController(validator, temlate_env)
-    app = Application(controller_match, temlate_env, static_dir)
+    controller_match = MatchController(validator, template_env)
+    app = Application(controller_match, template_env, static_dir)
     return app
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")

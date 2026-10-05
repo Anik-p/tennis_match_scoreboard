@@ -1,4 +1,4 @@
-from exceptions.app_error import AppErorr
+from exceptions.app_error import AppError
 from response import Response
 from typing import TYPE_CHECKING
 
@@ -28,7 +28,7 @@ class MatchController:
         name_p2 = params.get("player2_name", "").strip()
         try:
             self._validator.validate_name_plyers(name_p1, name_p2)
-        except AppErorr as err:
+        except AppError as err:
             return Response().html(self._render("new-match.html", error=str(err)), status=err.status_code)
         view = match_service.new_match(name_p1, name_p2)
         return Response().redirect(f"/match-score?uuid={view.uuid}")

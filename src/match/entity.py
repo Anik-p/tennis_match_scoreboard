@@ -3,7 +3,7 @@ from sqlalchemy.orm import relationship, Mapped, mapped_column, relationship
 from sqlalchemy import Integer, String, ForeignKey
 from dataclasses import asdict
 from status_points.point_match import LOVE
-from status_points.math_status_enum import MathStatus, GameStatus
+from status_points.math_status_enum import MatchStatus, GameStatus
 from match.model import Score
 import json
 import uuid
@@ -19,7 +19,7 @@ class Match(Base):
         
         Методы:
             -- create - classmethod метод для создания нового матча
-            -- Score - propert/setter, выводит десиализационную строку self._score/ обновляет json представление
+            -- Score - propert/setter, выводит десериализационную строку self._score/ обновляет json представление
 
         Структура матча:
 
@@ -29,7 +29,7 @@ class Match(Base):
                      Winner=None,
                      _score=score)
 
-        Структура атрибута _score (десиализационная):
+        Структура атрибута _score (десериализационная):
 
         Score(  set_point = {"Player1_id": 0, "Player2_id": 0},
                 game_point = {"Player1_id": 0, "Player2_id": 0}
@@ -58,7 +58,7 @@ class Match(Base):
         score = Score({player_id_1: 0, player_id_2: 0},
                     {player_id_1: 0, player_id_2: 0},
                     {player_id_1: LOVE, player_id_2: LOVE},
-                    MathStatus.ONGOING.value,
+                    MatchStatus.ONGOING.value,
                     GameStatus.GAME.value)
         
         return cls(UUID=str(uuid.uuid4()),
@@ -76,4 +76,4 @@ class Match(Base):
         self._score = json.dumps(asdict(value))
 
     def __repr__(self) -> str:
-        return f"Math<ID={self.ID}, UUID={self.UUID}, Player1={self.Player1}, Player2={self.Player2}, Winner={self.Winner}, Score={self._score}>"
+        return f"Math<ID={self.ID}, UUID={self.UUID}, Player1={self.Player1}, Player2={self.Player2}, Winner={self.Winner}, Score={self.Score}>"

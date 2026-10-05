@@ -21,7 +21,7 @@ class FinishedMatchDTO:
     winner: str | None
 
 @dataclass
-class MatchsViewDTO:
+class MatchesViewDTO:
     matchs: list
     total: int
     page: int

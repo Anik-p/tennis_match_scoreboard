@@ -5,4 +5,4 @@ COPY migrations/ ./migrations/
 COPY alembic.ini .
 COPY frontend/ ./frontend/
 EXPOSE 8000
-CMD ["python", "-c", "from src.main import start_server; app_start()"]
+CMD ["python", "-c", "from src.main import app_start; app_start()"]

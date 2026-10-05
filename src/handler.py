@@ -1,5 +1,5 @@
 from urllib.parse import urlparse, parse_qs
-from exceptions.app_error import AppErorr
+from exceptions.app_error import AppError
 from exceptions.base.domain_error import NotFoundError
 from pathlib import Path
 from jinja2 import Environment
@@ -36,7 +36,7 @@ class Handler(BaseHTTPRequestHandler):
             url_path = urlparse(self.path)
             path = url_path.path
             if path.startswith(self.STATIC_PREFIXES):
-                return self._server_static(path)
+                return self._serve_static(path)
             
             query_params = parse_qs(url_path.query) 
             handler, path_params = self._router.resolve(url_path.path, method=method) 
@@ -51,14 +51,15 @@ class Handler(BaseHTTPRequestHandler):
                 params.update(body_params)
             with self._session_fabric._create_match_service() as match_service:
                 response = handler(params, match_service)
+                match_service.commit()
                 self._send_response(response)
-        except AppErorr as err:
+        except AppError as err:
             self._send_error_page(err.status_code, str(err))
         except Exception:
             logging.exception("Необработанная ошибка: %s %s", method, self.path)
             self._send_error_page(500, "Внутренняя ошибка сервера")       
         
-    def _server_static(self, path: str) -> None:
+    def _serve_static(self, path: str) -> None:
         path_temp = Path(path.lstrip("/"))
         if ".." in path_temp.parts:
             raise NotFoundError()

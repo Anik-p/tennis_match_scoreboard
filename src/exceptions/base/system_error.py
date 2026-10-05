@@ -1,6 +1,6 @@
-from exceptions.app_error import AppErorr
+from exceptions.app_error import AppError
 
-class DatabaseUnavailableError(AppErorr):
+class DatabaseUnavailableError(AppError):
     def __init__(self, error: str | None=None):
         self.status_code = 503
         message = "База данных недоступна"
@@ -8,13 +8,13 @@ class DatabaseUnavailableError(AppErorr):
             message += f": {error}"
         super().__init__(message)
 
-class DatabaseOperationError(AppErorr):
+class DatabaseOperationError(AppError):
     def __init__(self, operation: str):
         self.status_code = 500
         message = f"Ошибка операции БД: {operation}"
         super().__init__(message)
 
-class NameNotFoundIdError(AppErorr):
+class NameNotFoundIdError(AppError):
     def __init__(self):
         self.status_code = 404
         message = f"Нет данных игрока"

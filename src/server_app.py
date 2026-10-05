@@ -16,10 +16,10 @@ INIT_PORT = int(os.getenv("API_PORT"))
 class Application:
     def __init__(self,
                  controllers: MatchController,
-                 temlate_env,
+                 template_env,
                  static_dir):
         self.controllers = controllers
-        self.temlate_env = temlate_env
+        self.template_env = template_env
         self.static_dir = static_dir
         self.router = Router()
         self._register_routes()
@@ -39,7 +39,7 @@ class Application:
             server=server,
             router=self.router,
             static_dir=self.static_dir,
-            template_env=self.temlate_env,
+            template_env=self.template_env,
             session_fabric=SessionFabric()
             )
     

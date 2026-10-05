@@ -42,9 +42,5 @@ class MatchRepository:
                                         .limit(per_page)).all()
         return list(rows), total
 
-
-    def rollback(self) -> None:
-        self._session.rollback()
-
     def flush(self) -> None:
         self._session.flush()

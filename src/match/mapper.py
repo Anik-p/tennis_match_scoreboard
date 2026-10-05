@@ -1,4 +1,4 @@
-from match.dto import MatchDTO, FinishedMatchDTO, MatchsViewDTO
+from match.dto import MatchDTO, FinishedMatchDTO, MatchesViewDTO
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from match.entity import Match
@@ -6,7 +6,7 @@ if TYPE_CHECKING:
 class MapperMatch:
     @staticmethod
     def to_view(matchs: list[Match], total: int, page: int):
-        return MatchsViewDTO(matchs=[FinishedMatchDTO(player1=row.player1.Name,
+        return MatchesViewDTO(matchs=[FinishedMatchDTO(player1=row.player1.Name,
                                                       player2=row.player2.Name,
                                                       winner=row.winner.Name if row.Winner else "No data")                             
                                     for row in matchs],

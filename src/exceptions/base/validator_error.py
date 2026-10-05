@@ -1,12 +1,12 @@
-from exceptions.app_error import AppErorr
+from exceptions.app_error import AppError
 
-class IncorrectData(AppErorr):
+class IncorrectData(AppError):
     def __init__(self):
         self.status_code = 400
         message = "Обязательное поле формы не заполнено"
         super().__init__(message)
 
-class IncorrectInputName(AppErorr):
+class IncorrectInputName(AppError):
     def __init__(self, params: str=None):
         self.status_code = 400
         message = "Данный ввод ника не корректен"
@@ -14,7 +14,7 @@ class IncorrectInputName(AppErorr):
             message += f": {params}"
         super().__init__(message)
 
-class DataBaseValidatorError(AppErorr):
+class DataBaseValidatorError(AppError):
     def __init__(self, missing_file: str = None):
         self.status_code = 500
         message = "Нет данных для валидатора"

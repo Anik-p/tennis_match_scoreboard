@@ -1,6 +1,6 @@
 from enum import Enum
 
-class MathStatus(Enum):
+class MatchStatus(Enum):
     ONGOING = "ongoing"
     FINISHED = "finished"
 

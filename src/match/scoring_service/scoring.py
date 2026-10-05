@@ -1,4 +1,4 @@
-from status_points.math_status_enum import GameStatus, MathStatus
+from status_points.math_status_enum import GameStatus, MatchStatus
 from match.scoring_service.rules import Rules
 from status_points.point_match import LOVE, ORDER_POINT_GAME, GAME
 from typing import TYPE_CHECKING
@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 class ScoringService:
     def award_point(self, score: Score, winner_id: str | int) -> Score:
-        if score.match_status == MathStatus.FINISHED.value:
+        if score.match_status == MatchStatus.FINISHED.value:
             return score
 
         winner_id = str(winner_id)
@@ -47,7 +47,7 @@ class ScoringService:
             self._finish_game(winner_id, score)
 
     def _update_game_status(self, score: Score) -> Score:
-        if not score.match_status == MathStatus.FINISHED.value:
+        if not score.match_status == MatchStatus.FINISHED.value:
             if Rules.should_start_tiebreak(score.games, score.game_status):
                 self._start_tiebreak(score)
             elif Rules.should_enter_deuce(score.points):
@@ -67,7 +67,7 @@ class ScoringService:
             self._update_set(score)
             score.sets[winner_id] += 1 
             if Rules.won_match(score.sets):
-                score.match_status = MathStatus.FINISHED.value  
+                score.match_status = MatchStatus.FINISHED.value  
 
     def _start_tiebreak(self, score: Score) -> None:
         score.points = {key: 0 for key in score.points}
