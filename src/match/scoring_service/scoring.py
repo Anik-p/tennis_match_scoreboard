@@ -1,15 +1,16 @@
-from status_points.math_status_enum import GameStatus, MatchStatus
+from status_points.match_status_enum import GameStatus, MatchStatus
 from match.scoring_service.rules import Rules
 from status_points.point_match import LOVE, ORDER_POINT_GAME, GAME
 from typing import TYPE_CHECKING
+from exceptions.match import InvalidScoreTransitionError
 
 if TYPE_CHECKING:
     from model import Score
 
 class ScoringService:
     def award_point(self, score: Score, winner_id: str | int) -> Score:
-        if score.match_status == MatchStatus.FINISHED.value:
-            return score
+        if score.match_status == MatchStatus.FINISHED:
+            raise InvalidScoreTransitionError("Нельзя изменить счет в завершенном матче")
 
         winner_id = str(winner_id)
 
@@ -18,11 +19,11 @@ class ScoringService:
 
         game_status: str = score.game_status
         match game_status:
-            case GameStatus.GAME.value:
+            case GameStatus.GAME:
                 self._game(score, winner_id)
-            case GameStatus.DEUCE.value:
+            case GameStatus.DEUCE:
                 self._duece(score, winner_id)
-            case GameStatus.TIEBREAK.value:
+            case GameStatus.TIEBREAK:
                 self._tiebreak(score, winner_id)
         return self._update_game_status(score)
 
@@ -47,11 +48,11 @@ class ScoringService:
             self._finish_game(winner_id, score)
 
     def _update_game_status(self, score: Score) -> Score:
-        if not score.match_status == MatchStatus.FINISHED.value:
+        if not score.match_status == MatchStatus.FINISHED:
             if Rules.should_start_tiebreak(score.games, score.game_status):
                 self._start_tiebreak(score)
             elif Rules.should_enter_deuce(score.points):
-                score.game_status = GameStatus.DEUCE.value
+                score.game_status = GameStatus.DEUCE
         return score
     
     def _mode_game(self, winner_id: str, score: Score) -> None:
@@ -61,17 +62,17 @@ class ScoringService:
 
     def _finish_game(self, winner_id: str, score: Score) -> None:
         score.points = {key: LOVE for key in score.points}
-        score.game_status = GameStatus.GAME.value
+        score.game_status = GameStatus.GAME
         score.games[winner_id] += 1
         if Rules.won_set(score.games):
             self._update_set(score)
             score.sets[winner_id] += 1 
             if Rules.won_match(score.sets):
-                score.match_status = MatchStatus.FINISHED.value  
+                score.match_status = MatchStatus.FINISHED  
 
     def _start_tiebreak(self, score: Score) -> None:
         score.points = {key: 0 for key in score.points}
-        score.game_status = GameStatus.TIEBREAK.value
+        score.game_status = GameStatus.TIEBREAK
 
     def _update_set(self, score: Score) -> None:
         score.games = {key: 0 for key in score.games}

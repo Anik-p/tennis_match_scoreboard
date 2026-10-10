@@ -1,6 +1,6 @@
 from tests.conftest import PL_1, PL_2
 from status_points.point_match import LOVE, FIFTEEN, THIRTY, FORTY, GAME, AD_IN, AD_OUT
-from status_points.math_status_enum import GameStatus, MatchStatus
+from status_points.match_status_enum import GameStatus, MatchStatus
 from match.scoring_service.scoring import ScoringService
 import pytest
 
@@ -29,10 +29,10 @@ def test_scoring(start_score: str,
 
 
 @pytest.mark.parametrize("winner_id,winner_id_point,expected,mode", [
-                            (PL_1, None, (AD_IN, AD_OUT), GameStatus.DEUCE.value),
-                            (PL_2, None, (AD_OUT, AD_IN), GameStatus.DEUCE.value),
-                            (PL_2, PL_1, (FORTY, FORTY), GameStatus.DEUCE.value),
-                            (PL_1, PL_1, (LOVE, LOVE), GameStatus.GAME.value)])
+                            (PL_1, None, (AD_IN, AD_OUT), GameStatus.DEUCE),
+                            (PL_2, None, (AD_OUT, AD_IN), GameStatus.DEUCE),
+                            (PL_2, PL_1, (FORTY, FORTY), GameStatus.DEUCE),
+                            (PL_1, PL_1, (LOVE, LOVE), GameStatus.GAME)])
 def test_deuce_mod(winner_id: int,
                    winner_id_point: int | None,
                    expected: str,
@@ -46,16 +46,16 @@ def test_deuce_mod(winner_id: int,
     assert (point_p1 == ex_point_pl1 and point_p2 == ex_point_pl2) and score_result.game_status == mode
 
 @pytest.mark.parametrize("start_score,winner_id,expected,mode", [
-                            ((0,0),PL_1, (1,0), GameStatus.TIEBREAK.value),
-                            ((0,0),PL_2, (0,1), GameStatus.TIEBREAK.value),
-                            ((6,6),PL_2, (6,7), GameStatus.TIEBREAK.value),
-                            ((4,3),PL_1, (5,3), GameStatus.TIEBREAK.value),
-                            ((4,6),PL_1, (5,6), GameStatus.TIEBREAK.value),
-                            ((1,5),PL_1, (2,5), GameStatus.TIEBREAK.value),
-                            ((6,6),PL_1, (7,6), GameStatus.TIEBREAK.value),
-                            ((6,5),PL_1, (LOVE,LOVE), GameStatus.GAME.value),
-                            ((8,8),PL_1, (9,8), GameStatus.TIEBREAK.value),
-                            ((10,11),PL_2, (LOVE,LOVE), GameStatus.GAME.value)])
+                            ((0,0),PL_1, (1,0), GameStatus.TIEBREAK),
+                            ((0,0),PL_2, (0,1), GameStatus.TIEBREAK),
+                            ((6,6),PL_2, (6,7), GameStatus.TIEBREAK),
+                            ((4,3),PL_1, (5,3), GameStatus.TIEBREAK),
+                            ((4,6),PL_1, (5,6), GameStatus.TIEBREAK),
+                            ((1,5),PL_1, (2,5), GameStatus.TIEBREAK),
+                            ((6,6),PL_1, (7,6), GameStatus.TIEBREAK),
+                            ((6,5),PL_1, (LOVE,LOVE), GameStatus.GAME),
+                            ((8,8),PL_1, (9,8), GameStatus.TIEBREAK),
+                            ((10,11),PL_2, (LOVE,LOVE), GameStatus.GAME)])
 def test_tiebreak_mod(start_score: tuple[int],
                       winner_id: int,
                       expected: tuple[int],
@@ -69,9 +69,9 @@ def test_tiebreak_mod(start_score: tuple[int],
     assert (point_p1 == ex_point_pl1 and point_p2 == ex_point_pl2) and score_result.game_status == mode
     
 @pytest.mark.parametrize("sets,winner_id,expected,mode_match", [
-                            ((0,0),PL_1, (1,0), MatchStatus.ONGOING.value),
-                            ((0,1),PL_1, (1,1), MatchStatus.ONGOING.value),
-                            ((1,1),PL_1, (2,1), MatchStatus.FINISHED.value)])
+                            ((0,0),PL_1, (1,0), MatchStatus.ONGOING),
+                            ((0,1),PL_1, (1,1), MatchStatus.ONGOING),
+                            ((1,1),PL_1, (2,1), MatchStatus.FINISHED)])
 def test_match_point(sets: tuple[int],
                      winner_id: int,
                      expected: tuple[int],
@@ -102,7 +102,7 @@ def prepare_point(score: Score, points_players: tuple[str]) -> Match:
 
 def prepare_tiebreak(score: Score, game: tuple[int, int]) -> Match:
     score.games = {pl: 6 for pl in score.games}
-    score.game_status = GameStatus.TIEBREAK.value
+    score.game_status = GameStatus.TIEBREAK
     point_pl1, point_pl2 = game
     score.points[PL_1] = point_pl1
     score.points[PL_2] = point_pl2
@@ -115,5 +115,5 @@ def prepare_deuce(score: Score, winner_id: str | None) -> Match:
         loser_id = next(key for key in score.points if key != winner_id)
         score.points[winner_id] = AD_IN
         score.points[loser_id] = AD_OUT
-    score.game_status = GameStatus.DEUCE.value
+    score.game_status = GameStatus.DEUCE
     return score

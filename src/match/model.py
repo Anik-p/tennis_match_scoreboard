@@ -1,9 +1,10 @@
 from dataclasses import dataclass
+from enum import StrEnum
 
 @dataclass
 class Score:
     sets: dict[str, int]
     games: dict[str, int]
     points: dict[str, str | int]
-    match_status: str
-    game_status: str
+    match_status: StrEnum
+    game_status: StrEnum

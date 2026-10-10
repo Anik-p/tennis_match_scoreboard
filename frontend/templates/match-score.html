@@ -50,7 +50,7 @@
                     <td class="table-text">{{ match.games[0] }}</td>
                     <td class="table-text">{{ match.points[0] }}</td>
                     <td class="table-text">
-                        {% if match.match_status == "ongoing" %}
+                        {% if match.match_status == MatchStatus.ONGOING %}
                         <form method="post" action="/match-score?uuid={{ match.uuid }}">
                             <input type="hidden" name="winner_id" value="{{ match.player1_id }}">
                             <button class="score-btn" type="submit">Score</button>
@@ -64,7 +64,7 @@
                     <td class="table-text">{{ match.games[1] }}</td>
                     <td class="table-text">{{ match.points[1] }}</td>
                     <td class="table-text">
-                        {% if match.match_status == "ongoing" %}
+                        {% if match.match_status == MatchStatus.ONGOING %}
                         <form method="post" action="/match-score?uuid={{ match.uuid }}">
                             <input type="hidden" name="winner_id" value="{{ match.player2_id }}">
                             <button class="score-btn" type="submit">Score</button>
@@ -76,7 +76,7 @@
             </table>
         </section>
 
-        {% if match.match_status == "finished" %}
+        {% if match.match_status == MatchStatus.FINISHED %}
         <div class="match-finished" style="display: block;">
             Match is over. Winner: <span class="winner-name">{{ match.winner }}</span>
         </div>

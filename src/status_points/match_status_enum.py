@@ -1,10 +1,10 @@
-from enum import Enum
+from enum import StrEnum
 
-class MatchStatus(Enum):
+class MatchStatus(StrEnum):
     ONGOING = "ongoing"
     FINISHED = "finished"
 
-class GameStatus(Enum):
+class GameStatus(StrEnum):
     GAME = "game"
     DEUCE = "deuce"
     TIEBREAK = "tiebreak"

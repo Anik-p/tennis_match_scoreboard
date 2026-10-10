@@ -1,4 +1,4 @@
-from status_points.math_status_enum import GameStatus
+from status_points.match_status_enum import GameStatus
 from status_points.point_match import FORTY, GAME, AD_IN, AD_OUT
 from match.scoring_service.dto import DueceDTO
 
@@ -6,7 +6,7 @@ class Rules:
 
     @staticmethod
     def should_start_tiebreak(games: dict, game_status: str):
-        return list(games.values()) == [6,6] and game_status != GameStatus.TIEBREAK.value
+        return list(games.values()) == [6,6] and game_status != GameStatus.TIEBREAK
 
     @staticmethod
     def should_enter_deuce(points: dict):
@@ -27,7 +27,7 @@ class Rules:
 
     @staticmethod
     def mode_game(game_status: str) -> bool:
-        return game_status == GameStatus.GAME.value
+        return game_status == GameStatus.GAME
     
     @staticmethod
     def won_game(point: str) -> bool:

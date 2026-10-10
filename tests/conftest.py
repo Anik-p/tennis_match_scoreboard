@@ -1,5 +1,5 @@
-from status_points.point_match import *
-from status_points.math_status_enum import *
+from status_points.point_match import LOVE
+from status_points.match_status_enum import MatchStatus, GameStatus
 from match.model import Score
 import pytest
 
@@ -11,5 +11,5 @@ def create_score() -> Score:
     return Score({PL_1: 0, PL_2: 0},
                 {PL_1: 0, PL_2: 0},
                 {PL_1: LOVE, PL_2: LOVE},
-                MatchStatus.ONGOING.value,
-                GameStatus.GAME.value)
+                MatchStatus.ONGOING,
+                GameStatus.GAME)
