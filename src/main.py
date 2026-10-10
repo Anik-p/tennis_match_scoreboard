@@ -1,5 +1,8 @@
 from server_app import Application
 import logging
+from match.service import MatchService
+from status_points.match_status_enum import MatchStatus
+from match.scoring_service.scoring import ScoringService
 from match.controller import MatchController
 from validator.validator import InputValidator
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -15,10 +18,13 @@ def _static_dir():
 def create_app():
     template_env: Environment = Environment(loader=FileSystemLoader(_templates_dir()),
                                        autoescape=select_autoescape(["html"]))
+    template_env.globals["MatchStatus"] = MatchStatus
     static_dir = _static_dir()
     init_db()
     validator = InputValidator()
-    controller_match = MatchController(validator, template_env)
+    scoreing_servicce = ScoringService()
+    match_service = MatchService(scoreing_servicce)
+    controller_match = MatchController(match_service, validator, template_env)
     app = Application(controller_match, template_env, static_dir)
     return app
 
