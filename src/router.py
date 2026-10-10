@@ -6,7 +6,7 @@ class Router:
     def __init__(self):
         self.__endpoints: dict[str, dict[re.Pattern, Callable[..., Any]]] = {'GET': {}, 'POST': {}}
 
-    def register(self, method: str, path: str, handler: str) -> None:
+    def register(self, method: str, path: str, handler: Callable) -> None:
         self.__endpoints[method][re.compile(path)] = handler
 
     def resolve(self, path: str, method: str) -> Callable:

@@ -3,7 +3,7 @@ from sqlalchemy.orm import relationship, Mapped, mapped_column, relationship
 from sqlalchemy import Integer, String, ForeignKey
 from dataclasses import asdict
 from status_points.point_match import LOVE
-from status_points.math_status_enum import MatchStatus, GameStatus
+from status_points.match_status_enum import MatchStatus, GameStatus
 from match.model import Score
 import json
 import uuid
@@ -34,8 +34,8 @@ class Match(Base):
             Score(  sets = {"Player1_id": 0, "Player2_id": 0},
                     games = {"Player1_id": 0, "Player2_id": 0}
                     poits = {"Player1_id": "0", "Player2_id": "0"},
-                    match_status = "ongoing",
-                    game_status = "game")
+                    match_status = MatchStatus.ONGOING,
+                    game_status = GameStatus.GAME)
     """
     
     __tablename__ = "Matches"
@@ -57,8 +57,8 @@ class Match(Base):
         score = Score({player_id_1: 0, player_id_2: 0},
                     {player_id_1: 0, player_id_2: 0},
                     {player_id_1: LOVE, player_id_2: LOVE},
-                    MatchStatus.ONGOING.value,
-                    GameStatus.GAME.value)
+                    MatchStatus.ONGOING,
+                    GameStatus.GAME)
         
         return cls(UUID=str(uuid.uuid4()),
                      Player1=player_id_1,
