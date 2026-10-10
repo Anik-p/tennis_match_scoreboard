@@ -81,7 +81,7 @@ class Handler(BaseHTTPRequestHandler):
 
         2. Роутинг:
 
-            handler, path_params = self._router.resolve(url_path.path, method=method)
+            handler = self._router.resolve(url_path.path, method=method)
 
             handler = self.controllers.award_point
 
@@ -100,14 +100,18 @@ class Handler(BaseHTTPRequestHandler):
 
         4. Выполнение бизнес-логики:
 
-            with self._session_fabric._create_match_service() as match_service: - открытие сессии для запросов в БД с
-                                                                                  инициализацией репозиториев и сервиса матча
+            with self._session_fabric._create_match_service() as match_service:  
+                
+                Открытие сессии для запросов в БД с
+                инициализацией репозиториев и сервиса матча.
 
-                response = handler(params, match_service) - (response = self.controllers.award_point({"uuid": 3fa85f64-5717-4562-b3fc-2c963f66afa6, "winner_id": 5}, MatchService))
+                response = handler(params, match_service)
+                 
+                (response = self.controllers.award_point({"uuid": 3fa85f64-5717-4562-b3fc-2c963f66afa6, "winner_id": 5}, MatchService))
 
         5. Рендеринг ответа:
 
-                self._send_response(response) - переадресация страницы Response от контроллера            
+                self._send_response(response) - переадресация страницы Response от контроллера.            
         """
         try:
             url_path = urlparse(self.path)
@@ -123,8 +127,8 @@ class Handler(BaseHTTPRequestHandler):
             if method == "POST":
                 body_params = self.get_params()
                 params.update(body_params)
-            with self._session_fabric._create_match_service() as match_service:
-                response = handler(params, match_service)
+            with self._session_fabric.create_match_service() as uow:
+                response = handler(params, uow)
                 self._send_response(response)
         except AppError as err:
             self._send_error_page(err.status_code, str(err))
@@ -134,9 +138,64 @@ class Handler(BaseHTTPRequestHandler):
         
     def _serve_static(self, path: str) -> None:
         """
-        Рендер статических страниц
+        Отдача статических файлов (CSS, JS, изображения) из локальной директории.
 
         Пример выполнения: 
+
+        path_temp = Path(path.lstrip("/")) - Получение названия статического файла
+
+        if ".." in path_temp.parts: - Защита от обхода директории, останавливая запрос в вида
+                                        GET /static/../../.env где '..' означает выход на один уровень
+                                        вверх в коррень проекта в файлу .env.
+        
+            raise NotFoundError() - базовое исключение.
+
+        file_path = self._static_dir / path_temp - Формирование абсолютного пути к файлу
+                                                   путем склеивания пути базовой директории статики и названия файла.
+
+        if not file_path.is_file(): - проверяем, что данный путь введет к файлу
+        
+            raise NotFoundError(f"Статический файл не найден: {path}")
+
+        data = file_path.read_bytes() - Считываем файл в виде сырого бинарного потока байт.
+
+        content_type = mimetypes.guess_type(str(file_path))[0] or "application/octet-stream" 
+        
+            Функция mimetypes.guess_type(str(file_path)) принимает путь к файлу,
+            смотрит на его расширение и возвращает кортеж из двух элементов: (MIME_type, encoding).
+            Например:
+                - Для style.css она вернет: ("text/css", None)
+                - Для image.png она вернет: ("image/png", None)
+                - Для script.js она вернет: ("application/javascript", None)
+
+            or "application/octet-stream" - это сырой бинарный поток данных,
+            благодяря чему запускает скачивание файла на компьютер пользователя, вместо открытия неизвестного файла.
+            Это позволяет избежать 'Content-Type: None' в случаи неизвестного типа данных
+
+            Главная функция данной строки: гарантировать, что польователь получит адекватный ответ без подброса
+            исключения и случайным образом не считал файл с неизвестным форматом.
+                                                                                                
+        Формирование ответа:
+
+            self.send_response(200)
+            self.send_header("Content-Type", content_type)
+            self.send_header("Content-Length", str(len(data)))
+            self.end_headers()
+            self.wfile.write(data)
+
+        Пример ответа:
+
+            HTTP/1.1 200 OK
+            Content-Type: text/css; charset=utf-8
+            Content-Length: 1420
+            Connection: close
+
+            body {
+                    font-family: sans-serif;
+                    background-color: #f8f9fa;
+                }
+
+            (остальной код CSS)
 
         """
         path_temp = Path(path.lstrip("/"))
@@ -180,6 +239,8 @@ class Handler(BaseHTTPRequestHandler):
         try:
             body = self._template_env.get_template("error.html").render(
                 status=status, message=message)
+            # Если сломался движок шаблонов или удален error.html,
+            # отдаем сырой HTML, чтобы сервер не упал в бесконечную рекурсию.
         except Exception:
             body = f"<h1>Ошибка {status}</h1><p>{message}</p>"
         data = body.encode("utf-8")
@@ -190,6 +251,7 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(data)
 
     def _send_response(self, response: Response) -> None:
+         # Если в объекте ответа указан Location - выполняем HTTP 302 перенаправление
         if response.location:
             self.send_response(302)
             self.send_header("Location", response.location)

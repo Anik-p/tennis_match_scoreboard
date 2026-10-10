@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <title>Ошибка {{ status }} - Теннисное Табло</title>
+    <style>
+        .error-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            min-height: calc(100vh - 154px); 
+        }
+        .error-code {
+            font-size: 96px;
+            font-weight: bold;
+            color: #dc3545; 
+            margin-bottom: 10px;
+            line-height: 1;
+        }
+        .error-description {
+            margin-bottom: 40px;
+            color: #6c757d;
+        }
+        .error-btn-container {
+            width: 280px; 
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <nav class="nav-header">
+            <div class="brand">
+                <img src="/static/images/logo.png" alt="Logo" class="logo" onerror="this.style.display='none'">
+                <span class="logo-text"><strong>Теннисное Табло</strong></span>
+            </div>
+            <div class="nav-links">
+                <a href="/" class="nav-link">Главная</a>
+                <a href="/matches" class="nav-link">Матчи</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="error-wrapper">
+                <div class="error-code">{{ status }}</div>
+                
+                <p class="error-description">{{ message }}</p>
+                
+                <div class="error-btn-container">
+                    <button onclick="window.location.href='/'" class="btn-filter" style="margin-left: 0;">
+                        На главную
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="footer">
+        <p>&copy; Tennis Scoreboard, project from <a href="https://zhukovsd.github.io/python-backend-learning-course/">zhukovsd/python-backend-learning-course</a> roadmap.</p>
+    </div>
+
+</body>
+</html>
