@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from src.match.repository import MatchRepository
-    from src.player.repository import PlayerRepository
+    from match.repository import MatchRepository
+    from player.repository import PlayerRepository
 
 class AbstractUnitOfWork(ABC):
     
@@ -16,12 +16,4 @@ class AbstractUnitOfWork(ABC):
 
     @abstractmethod
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
-        pass
-
-    @abstractmethod
-    def commit(self) -> None:
-        pass
-
-    @abstractmethod
-    def rollback(self) -> None:
         pass

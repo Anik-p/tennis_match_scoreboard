@@ -1,8 +1,8 @@
 from handler import Handler
 from router import Router
 from http.server import ThreadingHTTPServer
-from session_fabric import SessionFabric
 import os
+import logging
 from dotenv import load_dotenv
 from typing import TYPE_CHECKING
 
@@ -39,11 +39,10 @@ class Application:
             server=server,
             router=self.router,
             static_dir=self.static_dir,
-            template_env=self.template_env,
-            session_fabric=SessionFabric()
+            template_env=self.template_env
             )
     
     def run(self, host=INIT_HOST, port=INIT_PORT):
         server = ThreadingHTTPServer((host, port), self.create_request_handler)
-        print(f"Сервер запущен на {host}:{port}")
+        logging.info(f"Сервер запущен на {host}:{port}")
         server.serve_forever()

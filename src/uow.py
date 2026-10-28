@@ -27,9 +27,3 @@ class SQLAlchemyUnitOfWork(AbstractUnitOfWork):
         finally:
             self.session.close()
             self.session = None  
-
-    def commit(self) -> None:
-        self.session.commit()
-
-    def rollback(self) -> None:
-        self.session.rollback()
