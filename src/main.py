@@ -2,7 +2,9 @@ from server_app import Application
 import logging
 from match.service import MatchService
 from status_points.match_status_enum import MatchStatus
-from match.scoring_service.scoring import ScoringService
+from uow import SQLAlchemyUnitOfWork
+from db.database import SessionLocal
+from match.domain.scoring import ScoringService
 from match.controller import MatchController
 from validator.validator import InputValidator
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -22,9 +24,10 @@ def create_app():
     static_dir = _static_dir()
     init_db()
     validator = InputValidator()
-    scoreing_servicce = ScoringService()
-    match_service = MatchService(scoreing_servicce)
-    controller_match = MatchController(match_service, validator, template_env)
+    scoreing_service = ScoringService()
+    match_service = MatchService(scoreing_service)
+    session_fabric = SQLAlchemyUnitOfWork(SessionLocal)
+    controller_match = MatchController(session_fabric, match_service, validator, template_env)
     app = Application(controller_match, template_env, static_dir)
     return app
 

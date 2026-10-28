@@ -1,10 +1,10 @@
 from db.base import Base
-from sqlalchemy.orm import relationship, Mapped, mapped_column, relationship
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy import Integer, String, ForeignKey
 from dataclasses import asdict
 from status_points.point_match import LOVE
 from status_points.match_status_enum import MatchStatus, GameStatus
-from match.model import Score
+from match.domain.score import Score
 import json
 import uuid
 from typing import TYPE_CHECKING
@@ -33,7 +33,7 @@ class Match(Base):
 
             Score(  sets = {"Player1_id": 0, "Player2_id": 0},
                     games = {"Player1_id": 0, "Player2_id": 0}
-                    poits = {"Player1_id": "0", "Player2_id": "0"},
+                    points = {"Player1_id": "0", "Player2_id": "0"},
                     match_status = MatchStatus.ONGOING,
                     game_status = GameStatus.GAME)
     """
@@ -75,4 +75,4 @@ class Match(Base):
         self._score = json.dumps(asdict(value))
 
     def __repr__(self) -> str:
-        return f"Math<ID={self.ID}, UUID={self.UUID}, Player1={self.Player1}, Player2={self.Player2}, Winner={self.Winner}, Score={self.Score}>"
+        return f"Match<ID={self.ID}, UUID={self.UUID}, Player1={self.Player1}, Player2={self.Player2}, Winner={self.Winner}, Score={self.Score}>"

@@ -1,6 +1,6 @@
 from status_points.match_status_enum import GameStatus
 from status_points.point_match import FORTY, GAME, AD_IN, AD_OUT
-from match.scoring_service.dto import DueceDTO
+from match.dto import DueceDTO
 
 class Rules:
 

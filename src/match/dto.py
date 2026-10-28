@@ -25,3 +25,9 @@ class MatchesViewDTO:
     matchs: list
     total: int
     page: int
+
+@dataclass
+class DueceDTO:
+    status: bool
+    winner: str | None = None
+    loser: str | None = None

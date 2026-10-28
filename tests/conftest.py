@@ -1,6 +1,6 @@
 from status_points.point_match import LOVE
 from status_points.match_status_enum import MatchStatus, GameStatus
-from match.model import Score
+from match.domain.score import Score
 import pytest
 
 PL_1, PL_2 = "PlayerONE", "PlayerTWO"

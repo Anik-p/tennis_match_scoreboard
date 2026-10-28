@@ -1,14 +1,14 @@
 from tests.conftest import PL_1, PL_2
 from status_points.point_match import LOVE, FIFTEEN, THIRTY, FORTY, GAME, AD_IN, AD_OUT
 from status_points.match_status_enum import GameStatus, MatchStatus
-from match.scoring_service.scoring import ScoringService
+from match.domain.scoring import ScoringService
 import pytest
 
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from match.entity import Match
-    from match.model import Score
+    from match.domain.score import Score
 
 @pytest.mark.parametrize("start_score,winner_id,expected", [
                             ((LOVE, LOVE), PL_1, (FIFTEEN, LOVE)),

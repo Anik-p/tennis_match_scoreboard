@@ -8,7 +8,7 @@ from match.entity import Match
 if TYPE_CHECKING:
     from match.dto import MatchDTO, MatchesViewDTO
     from interface import AbstractUnitOfWork
-    from scoring_service.scoring import ScoringService
+    from domain.scoring import ScoringService
 
 class MatchService:
     MATCHES_PER_PAGE = 5

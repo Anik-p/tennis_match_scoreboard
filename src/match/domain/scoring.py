@@ -1,11 +1,11 @@
 from status_points.match_status_enum import GameStatus, MatchStatus
-from match.scoring_service.rules import Rules
+from match.domain.rules import Rules
 from status_points.point_match import LOVE, ORDER_POINT_GAME, GAME
 from typing import TYPE_CHECKING
 from exceptions import InvalidScoreTransitionError
 
 if TYPE_CHECKING:
-    from model import Score
+    from domain.score import Score
 
 class ScoringService:
     def award_point(self, score: Score, winner_id: str | int) -> Score:
