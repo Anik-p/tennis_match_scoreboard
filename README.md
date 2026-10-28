@@ -29,10 +29,10 @@
 ```env
 MYSQL_USER=root
 MYSQL_PASS=your_password
-MYSQL_HOST=your_host
+MYSQL_HOST=db
 MYSQL_NAME=your_name
 MYSQL_PORT=3306
-API_HOST=localhost
+API_HOST=0.0.0.0
 API_PORT=8000
 ```
 
@@ -60,7 +60,7 @@ docker compose up --build
 Для запуска тестов (локально) выполните:
 
 ```bash
-py -m pytest
+python -m pytest
 ```
 
 ---
@@ -95,7 +95,6 @@ py -m pytest
 │   ├── response.py         # Формовщик запросов
 │   ├── router.py           # Маршрутизация запросов (Routing)
 │   ├── server_app.py       # Точка создания подключения
-│   ├── session_fabric.py   # Фабрика создания uow
 │   └── uow.py              # Реализация паттерна Unit of Work
 │
 ├── migrations/             # Миграции базы данных Alembic
