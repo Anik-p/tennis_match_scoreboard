@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 from status_points.match_status_enum import MatchStatus
-from exceptions.match import MatchNotFoundError
+from exceptions import MatchNotFoundError
 from player.entity import Player
 from match.mapper import MapperMatch
 from match.entity import Match

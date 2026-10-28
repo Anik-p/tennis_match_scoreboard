@@ -1,4 +1,4 @@
-from exceptions.base.domain_error import NotFoundError
+from exceptions import NotFoundError
 from typing import Callable, Any
 import re
 

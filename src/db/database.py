@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
-from exceptions.base.system_error import DatabaseUnavailableError
+from exceptions import DatabaseUnavailableError
 import logging
 import os
 from dotenv import load_dotenv

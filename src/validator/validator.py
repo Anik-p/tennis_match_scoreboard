@@ -1,5 +1,5 @@
 from pathlib import Path
-from exceptions.base.validator_error import IncorrectInputName, IncorrectData, DataBaseValidatorError
+from exceptions import MissingRequiredFieldError, IncorrectInputNameError, DatabaseValidatorError
 
 class InputValidator:
     def __init__(self):
@@ -11,9 +11,9 @@ class InputValidator:
         data_en = dir_path / "data"  / "en.txt"
 
         if not data_ru.exists():
-            raise DataBaseValidatorError("ru.txt")
+            raise DatabaseValidatorError("ru.txt")
         if not data_en.exists():
-            raise DataBaseValidatorError("en.txt")
+            raise DatabaseValidatorError("en.txt")
             
         set_words = set()        
         with open(data_ru, "r", encoding="utf-8") as f:
@@ -23,23 +23,23 @@ class InputValidator:
         
         return set_words
 
-    def validate_name_plyers(self, name_p1: str, name_p2: str) -> None:
+    def validate_name_players(self, name_p1: str, name_p2: str) -> None:
         if name_p1.lower() == name_p2.lower():
-            raise IncorrectInputName("Никнейм игроков не должны быть одинаковыми")
+            raise IncorrectInputNameError("Никнейм игроков не должны быть одинаковыми")
         self._validate_name(name_p1)
         self._validate_name(name_p2)
     
     def _validate_name(self, name: str) -> None:
         if not name:
-            raise IncorrectData()
+            raise MissingRequiredFieldError()
         if len(name) < 3:
-            raise IncorrectInputName("Никнейм должен иметь длину не менее 3 символов")
+            raise IncorrectInputNameError("Никнейм должен иметь длину не менее 3 символов")
         if len(name) > 20:
-            raise IncorrectInputName("Никнейм должен иметь длину не более 20 символов" )
+            raise IncorrectInputNameError("Никнейм должен иметь длину не более 20 символов" )
         if not all(row.isalpha() for row in name.split()):
-            raise IncorrectInputName("Никнейм должнен состоять из букв")
+            raise IncorrectInputNameError("Никнейм должнен состоять из букв")
         if self._validate_profanity_words(name):
-            raise IncorrectInputName(f"Введенное слово в '{name}' является нецензурным")
+            raise IncorrectInputNameError(f"Введенное слово в '{name}' является нецензурным")
 
     def _validate_profanity_words(self, text: str) -> bool:
         return any(row in text.lower() for row in self.word)

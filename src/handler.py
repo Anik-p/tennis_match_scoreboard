@@ -1,6 +1,6 @@
 from urllib.parse import urlparse, parse_qs
-from exceptions.app_error import AppError
-from exceptions.base.domain_error import NotFoundError
+from exceptions import AppError
+from exceptions import NotFoundError
 from pathlib import Path
 from jinja2 import Environment
 from http.server import BaseHTTPRequestHandler
@@ -9,7 +9,6 @@ import logging
 import mimetypes
 
 if TYPE_CHECKING:
-    from session_fabric import SessionFabric
     from response import Response
     from router import Router
 
@@ -29,13 +28,11 @@ class Handler(BaseHTTPRequestHandler):
                  server,
                  router: Router,
                  static_dir: Path,
-                 template_env: Environment,
-                 session_fabric: SessionFabric):
+                 template_env: Environment):
 
         self._static_dir = static_dir
         self._template_env = template_env
         self._router = router
-        self._session_fabric = session_fabric
         super().__init__(request, client_address, server)
 
     def _handle(self, method: str):
@@ -72,46 +69,37 @@ class Handler(BaseHTTPRequestHandler):
         1. Разбор URI:
 
             urlparse(self.path)
-
             url_path = (scheme)://(netloc)/(path);(params)?(query)#(fragment)
-
             path = /match-score
-
             query_params = {"uuid": [3fa85f64-5717-4562-b3fc-2c963f66afa6]}
 
         2. Роутинг:
 
             handler = self._router.resolve(url_path.path, method=method)
-
             handler = self.controllers.award_point
-
 
         3. Сбор и распаковка параметров:     
 
             params = {}
 
             if query_params:
+            
                 query_params = {key: value[0] for key, value in query_params.items()}
                 params.update({"uuid": 3fa85f64-5717-4562-b3fc-2c963f66afa6})
             
             if method == "POST":
+            
                 body_params = {"winner_id": 5}
                 params.update({"winner_id": 5})
 
         4. Выполнение бизнес-логики:
 
-            with self._session_fabric._create_match_service() as match_service:  
-                
-                Открытие сессии для запросов в БД с
-                инициализацией репозиториев и сервиса матча.
-
-                response = handler(params, match_service)
-                 
-                (response = self.controllers.award_point({"uuid": 3fa85f64-5717-4562-b3fc-2c963f66afa6, "winner_id": 5}, MatchService))
+            response = handler(params, match_service)
+            (response = self.controllers.award_point({"uuid": 3fa85f64-5717-4562-b3fc-2c963f66afa6, "winner_id": 5}, MatchService))
 
         5. Рендеринг ответа:
 
-                self._send_response(response) - переадресация страницы Response от контроллера.            
+            self._send_response(response) - переадресация страницы Response от контроллера.            
         """
         try:
             url_path = urlparse(self.path)
@@ -127,9 +115,8 @@ class Handler(BaseHTTPRequestHandler):
             if method == "POST":
                 body_params = self.get_params()
                 params.update(body_params)
-            with self._session_fabric.create_match_service() as uow:
-                response = handler(params, uow)
-                self._send_response(response)
+            response = handler(params)
+            self._send_response(response)
         except AppError as err:
             self._send_error_page(err.status_code, str(err))
         except Exception:
