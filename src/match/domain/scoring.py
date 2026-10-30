@@ -22,7 +22,7 @@ class ScoringService:
             case GameStatus.GAME:
                 self._game(score, winner_id)
             case GameStatus.DEUCE:
-                self._duece(score, winner_id)
+                self._deuce(score, winner_id)
             case GameStatus.TIEBREAK:
                 self._tiebreak(score, winner_id)
         return self._update_game_status(score)
@@ -32,7 +32,7 @@ class ScoringService:
         if Rules.won_game(score.points[winner_id]):
             self._finish_game(winner_id, score)
 
-    def _duece(self, score: Score, winner_id: str):
+    def _deuce(self, score: Score, winner_id: str):
         loser_id = str(self._to_opponent(winner_id, score))
         result = Rules.mode_deuce(score.points[winner_id], score.points[loser_id])
         if result.status:
